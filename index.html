@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trójkąt Sierpińskiego - Animacja</title>
+  <link rel="icon" type="image/x-icon" href="Trojkat-sierpinskiego.png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      animation: fadeInBody 2s ease forwards;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    h1 {
+      margin: 10px 0 5px 0;
+      font-size: 2.2em;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards;
+      animation-delay: 0.3s;
+    }
+
+    h3 {
+      margin: 0 0 15px 0;
+      font-weight: normal;
+      font-size: 1.2em;
+      color: #aaa;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards;
+      animation-delay: 0.6s;
+    }
+
+    #canvas {
+      background: #000;
+      border: 2px solid #333;
+      width: 90vw;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      max-width: 400px;
+      max-height: 400px;
+      margin: 10px 0;
+      opacity: 0;
+      animation: fadeIn 2s ease forwards;
+      animation-delay: 0.9s;
+    }
+
+    .buttons {
+      margin-top: 15px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeIn 2s ease forwards;
+      animation-delay: 1.2s;
+    }
+
+    .buttons button {
+      background: linear-gradient(45deg, #0077cc, #005fa3);
+      border: none;
+      color: white;
+      font-size: 1em;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s, background 0.3s;
+    }
+
+    .buttons button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(45deg, #005fa3, #004080);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.6em;
+      }
+      h3 {
+        font-size: 1em;
+      }
+      #canvas {
+        width: 80vw;
+        max-width: 280px;
+        max-height: 280px;
+      }
+      .buttons button {
+        font-size: 0.9em;
+        padding: 8px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Trójkąt Sierpińskiego</h1>
+  <h3>by Jakub Data</h3>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="buttons">
+    <button id="startBtn">Start Animacji</button>
+  </div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const startBtn = document.getElementById('startBtn');
+
+let triangles = [];
+let currentDrawn = 0;
+let animating = false;
+const maxDepth = 5;
+const baseColor = [0, 119, 204];
+let animationFrameId;
+
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+}
+
+function colorForDepth(depth) {
+  const brightness = 1 - depth / maxDepth;
+  const [r, g, b] = baseColor;
+  return `rgb(${Math.floor(r + (255 - r) * (1 - brightness))},
+              ${Math.floor(g + (255 - g) * (1 - brightness))},
+              ${Math.floor(b + (255 - b) * (1 - brightness))})`;
+}
+
+function generateTriangles(x, y, size, depth) {
+  if (depth === 0) {
+    triangles.push({ x, y, size, depth });
+  } else {
+    const height = Math.sqrt(3) / 2 * size;
+    generateTriangles(x, y, size/2, depth-1);
+    generateTriangles(x - size/4, y + height/2, size/2, depth-1);
+    generateTriangles(x + size/4, y + height/2, size/2, depth-1);
+  }
+}
+
+function sortTrianglesFromCenter() {
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  triangles.sort((a, b) => {
+    const da = Math.hypot(a.x - centerX, a.y - centerY);
+    const db = Math.hypot(b.x - centerX, b.y - centerY);
+    return da - db;
+  });
+}
+
+function drawTriangles() {
+  if (!animating) return;
+  ctx.lineWidth = 1.5;
+  ctx.shadowBlur = 5;
+  
+  if (currentDrawn < triangles.length) {
+    const { x, y, size, depth } = triangles[currentDrawn];
+    ctx.strokeStyle = colorForDepth(depth);
+    ctx.shadowColor = ctx.strokeStyle;
+    const height = Math.sqrt(3) / 2 * size;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - size/2, y + height);
+    ctx.lineTo(x + size/2, y + height);
+    ctx.closePath();
+    ctx.stroke();
+    
+    currentDrawn++;
+    requestAnimationFrame(drawTriangles);
+  } else {
+    animating = false;
+  }
+}
+
+startBtn.addEventListener('click', () => {
+  if (!animating) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    triangles = [];
+    const size = Math.min(canvas.width * 0.9, canvas.height * 0.9);
+    const x = canvas.width / 2;
+    const y = canvas.height * 0.05;
+    generateTriangles(x, y, size, maxDepth);
+    sortTrianglesFromCenter();
+    currentDrawn = 0;
+    animating = true;
+    drawTriangles();
+  }
+});
+
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+resizeCanvas();
+</script>
+
+</body>
+</html>
