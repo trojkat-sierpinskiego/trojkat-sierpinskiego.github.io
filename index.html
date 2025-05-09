@@ -24,27 +24,23 @@
       animation: fadeInBody 2s ease forwards;
     }
 
-    .container{
-      
-    }
-
     @keyframes fadeInBody {
       from { opacity: 0; }
       to { opacity: 1; }
     }
 
     h1 {
-      margin: 10px 0 5px 0;
-      font-size: 2.2em;
+      margin: 5px 0;
+      font-size: 1.8em;
       opacity: 0;
       animation: fadeIn 1.5s ease forwards;
       animation-delay: 0.3s;
     }
 
     h3 {
-      margin: 0 0 15px 0;
+      margin: 0 0 10px 0;
       font-weight: normal;
-      font-size: 1.2em;
+      font-size: 1em;
       color: #aaa;
       opacity: 0;
       animation: fadeIn 1.5s ease forwards;
@@ -54,11 +50,10 @@
     #canvas {
       background: #000;
       border: 2px solid #333;
-      width: 90vw;
+      width: 70vw;
       height: auto;
-      aspect-ratio: 1 / 1;
-      max-width: 400px;
-      max-height: 400px;
+      aspect-ratio: 1/1;
+      max-width: 320px;
       margin: 10px 0;
       opacity: 0;
       animation: fadeIn 2s ease forwards;
@@ -66,10 +61,9 @@
     }
 
     .buttons {
-      margin-top: 15px;
+      margin-top: 12px;
       display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+      gap: 10px;
       justify-content: center;
       opacity: 0;
       animation: fadeIn 2s ease forwards;
@@ -80,8 +74,8 @@
       background: linear-gradient(45deg, #0077cc, #005fa3);
       border: none;
       color: white;
-      font-size: 1em;
-      padding: 10px 20px;
+      font-size: 0.95em;
+      padding: 8px 18px;
       border-radius: 5px;
       cursor: pointer;
       transition: transform 0.3s, background 0.3s;
@@ -97,36 +91,33 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       h1 {
-        font-size: 1.6em;
+        font-size: 1.5em;
       }
       h3 {
-        font-size: 1em;
+        font-size: 0.9em;
       }
       #canvas {
         width: 80vw;
-        max-width: 280px;
-        max-height: 280px;
+        max-width: 260px;
       }
       .buttons button {
-        font-size: 0.9em;
-        padding: 8px 16px;
+        font-size: 0.85em;
+        padding: 7px 14px;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>Trójkąt Sierpińskiego</h1>
-    <h3>by Jakub Data</h3>
+  <h1>Trójkąt Sierpińskiego</h1>
+  <h3>by Jakub Data</h3>
 
-    <canvas id="canvas"></canvas>
+  <canvas id="canvas"></canvas>
 
-    <div class="buttons">
-      <button id="startBtn">Start Animacji</button>
-    </div>
+  <div class="buttons">
+    <button id="startBtn">Start</button>
   </div>
 
 <script>
@@ -139,7 +130,6 @@ let currentDrawn = 0;
 let animating = false;
 const maxDepth = 5;
 const baseColor = [0, 119, 204];
-let animationFrameId;
 
 function resizeCanvas() {
   const rect = canvas.getBoundingClientRect();
@@ -180,7 +170,7 @@ function drawTriangles() {
   if (!animating) return;
   ctx.lineWidth = 1.5;
   ctx.shadowBlur = 5;
-  
+
   if (currentDrawn < triangles.length) {
     const { x, y, size, depth } = triangles[currentDrawn];
     ctx.strokeStyle = colorForDepth(depth);
@@ -192,7 +182,7 @@ function drawTriangles() {
     ctx.lineTo(x + size/2, y + height);
     ctx.closePath();
     ctx.stroke();
-    
+
     currentDrawn++;
     requestAnimationFrame(drawTriangles);
   } else {
